@@ -7,6 +7,11 @@ public class ArrayDeque<T> {
     private int size;
     private int capacity;
 
+    /*private resize(int n){
+        T[] temp = (T[]) new Object[n];
+
+    }*/
+
     public ArrayDeque() {
         array = (T []) new Object[8];
         nextFirst = 3;
@@ -49,6 +54,7 @@ public class ArrayDeque<T> {
         nextFirst = (nextFirst == capacity - 1) ? 0 : nextFirst + 1;
         T out = array[nextFirst];
         array[nextFirst] = null;
+        size = (size == 0) ? 0 : size - 1;
         return out;
     }
 
@@ -56,6 +62,7 @@ public class ArrayDeque<T> {
         nextLast = (nextLast == 0) ? capacity - 1 : nextLast - 1;
         T out = array[nextLast];
         array[nextLast] = null;
+        size = (size == 0) ? 0 : size - 1;
         return out;
     }
 
@@ -64,4 +71,16 @@ public class ArrayDeque<T> {
         return array[(nextFirst + 1 + index) % capacity];
     }
 
+    public static void main(String args[]){
+        ArrayDeque<Integer> A = new ArrayDeque<>();
+        A.addFirst(2);
+        A.addFirst(1);
+        A.addLast(3);
+        A.addLast(4);
+        A.addLast(5);
+        A.addLast(6);
+        A.addLast(7);
+        A.addLast(8);
+        A.removeLast();
+    }
 }
