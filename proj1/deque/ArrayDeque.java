@@ -7,10 +7,20 @@ public class ArrayDeque<T> {
     private int size;
     private int capacity;
 
-    /*private resize(int n){
+    private void resize(int n){
         T[] temp = (T[]) new Object[n];
-
-    }*/
+        int arrayIndex = (nextFirst == capacity - 1) ? 0 : nextFirst + 1;
+        nextFirst = n/4 - 1;
+        nextLast = nextFirst + size + 1;
+        int tempIndex = (nextFirst + 1 < n) ? nextFirst + 1 : 0;
+        for (int i = 0; i < size; i += 1, arrayIndex += 1, tempIndex += 1){
+            if (tempIndex >= n) tempIndex = 0;
+            if (arrayIndex >= capacity) arrayIndex = 0;
+            temp[tempIndex] = array[arrayIndex];
+        }
+        array = temp;
+        capacity = n;
+    }
 
     public ArrayDeque() {
         array = (T []) new Object[8];
@@ -21,12 +31,18 @@ public class ArrayDeque<T> {
     }
 
     public void addFirst(T item){
+        if (size == capacity){
+            resize(2 * capacity);
+        }
         array[nextFirst] = item;
         nextFirst = (nextFirst == 0) ? capacity - 1 : nextFirst - 1;
         size += 1;
     }
 
     public void addLast(T item){
+        if (size == capacity){
+            resize(2 * capacity);
+        }
         array[nextLast] = item;
         nextLast = (nextLast == capacity - 1) ? 0 : nextLast + 1;
         size += 1;
@@ -51,6 +67,9 @@ public class ArrayDeque<T> {
     }
 
     public T removeFirst(){
+        if (size == capacity/4 && capacity > 8){
+            resize(capacity/2);
+        }
         nextFirst = (nextFirst == capacity - 1) ? 0 : nextFirst + 1;
         T out = array[nextFirst];
         array[nextFirst] = null;
@@ -59,6 +78,9 @@ public class ArrayDeque<T> {
     }
 
     public T removeLast(){
+        if (size == capacity/4 && capacity > 8){
+            resize(capacity/2);
+        }
         nextLast = (nextLast == 0) ? capacity - 1 : nextLast - 1;
         T out = array[nextLast];
         array[nextLast] = null;
@@ -71,16 +93,13 @@ public class ArrayDeque<T> {
         return array[(nextFirst + 1 + index) % capacity];
     }
 
-    public static void main(String args[]){
+    public static void main(String[] args){
         ArrayDeque<Integer> A = new ArrayDeque<>();
-        A.addFirst(2);
-        A.addFirst(1);
-        A.addLast(3);
-        A.addLast(4);
-        A.addLast(5);
-        A.addLast(6);
-        A.addLast(7);
-        A.addLast(8);
-        A.removeLast();
+        for (int i = 0; i < 17; i++){
+            A.addLast(i);
+        }
+        for (int i = 0; i < 14; i++){
+            A.removeFirst();
+        }
     }
 }
