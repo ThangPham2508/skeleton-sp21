@@ -22,7 +22,7 @@ public class ArrayDeque<T> {
         capacity = n;
     }
 
-    public ArrayDeque() {
+    public ArrayDeque(){
         array = (T []) new Object[8];
         nextFirst = 3;
         nextLast = 4;
