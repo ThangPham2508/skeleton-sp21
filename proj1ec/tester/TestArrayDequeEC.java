@@ -27,18 +27,18 @@ public class TestArrayDequeEC {
                 message.append("addLast(").append(value).append(")\n");
             }
             if (method == 2) {
-                if (A.isEmpty() || S.isEmpty()) continue;
+                if (A.isEmpty() && S.isEmpty()) continue;
                 Integer n1 = A.removeFirst();
                 Integer n2 = S.removeFirst();
                 message.append("removeFirst()\n");
                 assertEquals(String.valueOf(message),n1,n2);
             }
             if (method == 3) {
-                if (A.isEmpty() || S.isEmpty()) continue;
+                if (A.isEmpty() && S.isEmpty()) continue;
                 Integer n1 = A.removeLast();
                 Integer n2 = S.removeLast();
-                assertEquals(String.valueOf(message),n1,n2);
                 message.append("removeLast()\n");
+                assertEquals(String.valueOf(message),n1,n2);
             }
         }
 
