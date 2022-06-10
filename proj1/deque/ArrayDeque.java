@@ -1,6 +1,7 @@
 package deque;
+import java.util.Iterator;
 
-public class ArrayDeque<T> {
+public class ArrayDeque<T> implements Iterable<T> {
     private T[] array;
     private int nextFirst;
     private int nextLast;
@@ -93,13 +94,61 @@ public class ArrayDeque<T> {
         return array[(nextFirst + 1 + index) % capacity];
     }
 
+    public Iterator<T> iterator() {
+        return new ArrayDequeIterator();
+    }
+
+    private class ArrayDequeIterator implements Iterator<T>{
+        private int pos;
+
+        public ArrayDequeIterator() {
+            pos = 0;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos < size;
+        }
+
+        public T next() {
+            int index = (pos + nextFirst + 1 >= capacity) ? pos + nextFirst + 1 - capacity : pos + nextFirst + 1;
+            pos += 1;
+            return array[index];
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        ArrayDeque<T> AD = (ArrayDeque<T>) obj;
+        if (AD.size() != size) {
+            return false;
+        }
+        for (int i = 0; i < size; i++) {
+            if (this.get(i) != AD.get(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static void main(String[] args){
         ArrayDeque<Integer> A = new ArrayDeque<>();
-        for (int i = 0; i < 17; i++){
+        for (int i = 0; i < 8; i++) {
             A.addLast(i);
         }
-        for (int i = 0; i < 14; i++){
-            A.removeFirst();
+        ArrayDeque<Integer> a = new ArrayDeque<>();
+        for (int i = 0; i < 8; i++) {
+            a.addLast(2);
         }
+        System.out.println(A.equals(a));
     }
 }

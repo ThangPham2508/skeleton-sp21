@@ -1,6 +1,8 @@
 package deque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public class LinkedListDeque<T>{
+public class LinkedListDeque<T> implements Iterable<T>{
     public class Node{
         public T data;
         public Node prev;
@@ -87,12 +89,57 @@ public class LinkedListDeque<T>{
         }
     }
 
+    public Iterator<T> iterator(){
+        return new LinkedListIterator();
+    }
+
+    private class LinkedListIterator implements Iterator<T> {
+        private Node pos;
+
+        public LinkedListIterator(){
+            pos = sentinel.next;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return pos != sentinel;
+        }
+
+        public T next() {
+            Node p = pos;
+            pos = pos.next;
+            return p.data;
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        LinkedListDeque<T> LLD = (LinkedListDeque<T>) obj;
+        if (this.size() != LLD.size()) {
+            return false;
+        }
+        int index = 0;
+        for (T item : this){
+            if (LLD.get(index) != item) return false;
+            index += 1;
+        }
+        return true;
+    }
 
     public static void main(String[] args){
         LinkedListDeque<Integer> L = new LinkedListDeque<>();
-        L.addLast(5); L.addFirst(6); L.addLast(7);
-        System.out.println(L.getRecursive(0));
+        L.addLast(5);
+        LinkedListDeque<Integer> l = new LinkedListDeque<>();
+        l.addLast(5);
+        System.out.println(L.equals(l));
     }
-
-
 }
