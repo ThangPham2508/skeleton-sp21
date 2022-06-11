@@ -6,7 +6,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         private T data;
         private Node prev;
         private Node next;
-        public Node(T x, Node p, Node n) {
+        Node(T x, Node p, Node n) {
             data = x;
             prev = p;
             next = n;
@@ -68,7 +68,7 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
             return null;
         }
         Node p = sentinel.next;
-        for (int i = 0; i < index; i++){
+        for (int i = 0; i < index; i++) {
             p = p.next;
         }
         return p.data;
@@ -82,9 +82,11 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
             return sentinel.next.data;
         } else {
             LinkedListDeque<T> L = new LinkedListDeque<>();
-            L.sentinel = this.sentinel;
-            L.removeFirst();
-            return L.getRecursive(index - 1);
+            L.sentinel = this.sentinel; L.size = size;
+            T n = L.removeFirst();
+            T out = L.getRecursive(index - 1);
+            L.addFirst(n);
+            return out;
         }
     }
 
@@ -119,18 +121,30 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         if (obj == null) {
             return false;
         }
-        if (this.getClass() != obj.getClass()) {
+        if (!(obj instanceof Deque)) {
             return false;
         }
-        Deque<T> LLD = (Deque<T>) obj;
-        if (this.size() != LLD.size()) {
+        Deque<T> lld = (Deque<T>) obj;
+        if (this.size() != lld.size()) {
             return false;
         }
-        int index = 0;
-        for (T item : this) {
-            if (LLD.get(index) != item) return false;
-            index += 1;
+        for (int i = 0; i < size; i++) {
+            if (lld.get(i) != this.get(i)) {
+                return false;
+            }
         }
         return true;
+    }
+
+    public static void main(String[] args) {
+        LinkedListDeque<String> lld = new LinkedListDeque<>();
+        lld.addFirst("H");
+        lld.addFirst("e");
+        lld.addFirst("l");
+        LinkedListDeque<String> lldd = new LinkedListDeque<>();
+        lldd.addFirst("H");
+        lldd.addFirst("e");
+        lldd.addFirst("ld");
+        System.out.println(lld.equals(lldd));
     }
 }

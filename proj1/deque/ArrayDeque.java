@@ -36,7 +36,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     public void addFirst(T item) {
-        if (size == capacity){
+        if (size == capacity) {
             resize(2 * capacity);
         }
         array[nextFirst] = item;
@@ -45,7 +45,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     public void addLast(T item) {
-        if (size == capacity){
+        if (size == capacity) {
             resize(2 * capacity);
         }
         array[nextLast] = item;
@@ -58,8 +58,8 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     public void printDeque() {
-        for (int i = nextFirst + 1; i != nextLast; i++){
-            if (i == capacity){
+        for (int i = nextFirst + 1; i != nextLast; i++) {
+            if (i == capacity) {
                 i = -1;
                 continue;
             }
@@ -68,7 +68,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     public T removeFirst() {
-        if (size == capacity / 4 && capacity > 8){
+        if (size == capacity / 4 && capacity > 8) {
             resize(capacity / 2);
         }
         nextFirst = (nextFirst == capacity - 1) ? 0 : nextFirst + 1;
@@ -79,7 +79,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     }
 
     public T removeLast() {
-        if (size == capacity / 4 && capacity > 8){
+        if (size == capacity / 4 && capacity > 8) {
             resize(capacity / 2);
         }
         nextLast = (nextLast == 0) ? capacity - 1 : nextLast - 1;
@@ -103,7 +103,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
     private class ArrayDequeIterator implements Iterator<T> {
         private int pos;
 
-        public ArrayDequeIterator() {
+        ArrayDequeIterator() {
             pos = 0;
         }
 
@@ -128,15 +128,15 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         if (obj == null) {
             return false;
         }
-        if (obj.getClass() != this.getClass()) {
+        if (!(obj instanceof Deque)) {
             return false;
         }
-        Deque<T> AD = (Deque<T>) obj;
-        if (AD.size() != size) {
+        Deque<T> ad = (Deque<T>) obj;
+        if (ad.size() != size) {
             return false;
         }
         for (int i = 0; i < size; i++) {
-            if (this.get(i) != AD.get(i)) {
+            if (this.get(i) != ad.get(i)) {
                 return false;
             }
         }

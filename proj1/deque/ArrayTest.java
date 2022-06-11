@@ -11,14 +11,14 @@ import static org.junit.Assert.*;
 
 public class ArrayTest {
     @Test
-    public void addThreeRemoveThree(){
+    public void addThreeRemoveThree() {
         AListNoResizing<Integer> a = new AListNoResizing<>();
         ArrayDeque<Integer> b = new ArrayDeque<>();
 
         a.addLast(5); a.addLast(10); a.addLast(15);
         b.addLast(5); b.addLast(10); b.addLast(15);
 
-        assertEquals(a.size(),b.size());
+        assertEquals(a.size(), b.size());
 
         assertEquals(a.removeLast(), b.removeLast());
         assertEquals(a.removeLast(), b.removeLast());
@@ -27,7 +27,7 @@ public class ArrayTest {
     }
 
     @Test
-    public void randomizedTest(){
+    public void randomizedTest() {
         AListNoResizing<Integer> L = new AListNoResizing<>();
         ArrayDeque<Integer> B = new ArrayDeque<>();
 
@@ -47,7 +47,9 @@ public class ArrayTest {
                 assertEquals(size, sizeB);
                 System.out.println("size: " + size);
             } else if (operationNumber == 2) {
-                if (L.size() == 0 || B.size() == 0) continue;
+                if (L.size() == 0 || B.size() == 0) {
+                    continue;
+                }
                 int last = L.removeLast();
                 int lastB = B.removeLast();
                 assertEquals(last, lastB);
