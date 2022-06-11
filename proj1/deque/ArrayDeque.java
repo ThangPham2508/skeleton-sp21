@@ -53,7 +53,7 @@ public class ArrayDeque<T> implements Iterable<T>, Deque<T> {
         size += 1;
     }
 
-    public int size(){
+    public int size() {
         return size;
     }
 

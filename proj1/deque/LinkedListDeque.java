@@ -90,14 +90,14 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         }
     }
 
-    public Iterator<T> iterator(){
+    public Iterator<T> iterator() {
         return new LinkedListIterator();
     }
 
     private class LinkedListIterator implements Iterator<T> {
         private Node pos;
 
-        public LinkedListIterator() {
+        LinkedListIterator() {
             pos = sentinel.next;
         }
 
@@ -136,15 +136,5 @@ public class LinkedListDeque<T> implements Iterable<T>, Deque<T> {
         return true;
     }
 
-    public static void main(String[] args) {
-        LinkedListDeque<String> lld = new LinkedListDeque<>();
-        lld.addFirst("H");
-        lld.addFirst("e");
-        lld.addFirst("l");
-        LinkedListDeque<String> lldd = new LinkedListDeque<>();
-        lldd.addFirst("H");
-        lldd.addFirst("e");
-        lldd.addFirst("ld");
-        System.out.println(lld.equals(lldd));
-    }
+
 }
