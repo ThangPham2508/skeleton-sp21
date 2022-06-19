@@ -24,7 +24,7 @@ JFLAGS = -g -Xlint:unchecked -Xlint:deprecation
 
 CLASSDIR = ../classes
 
-# See comment in ../Makefile
+# See comment in ../Makefilse
 PYTHON = python3
 
 RMAKE = "$(MAKE)"
