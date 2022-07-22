@@ -1,8 +1,12 @@
 package gitlet;
 
 // TODO: any imports you need here
+import java.io.File;
+import java.util.TreeMap;
 
+import java.io.Serializable;
 import java.util.Date; // TODO: You'll likely use this in this class
+import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -10,7 +14,7 @@ import java.util.Date; // TODO: You'll likely use this in this class
  *
  *  @author TODO
  */
-public class Commit {
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
@@ -21,6 +25,43 @@ public class Commit {
 
     /** The message of this Commit. */
     private String message;
+    private Date timestamp;
+    private String parent;
+    private TreeMap<String, String> file;
 
     /* TODO: fill in the rest of this class. */
+    public Commit() {
+        message = "initial commit";
+        timestamp = new Date(0);
+        parent = null;
+        file = null;
+    }
+
+    public boolean isInit() {
+        return file == null;
+    }
+
+    public String getFile(String filename) {
+        return file.get(filename);
+    }
+
+    public void updateDate() {
+        timestamp = new Date();
+    }
+
+    public void updateMessage(String message) {
+        this.message = message;
+    }
+
+    public void updateParent() {
+        File head = join(Repository.CWD, ".gitlet", "HEAD");
+        parent = readContentsAsString(head);
+    }
+
+    public void updateMap(TreeMap<String, String> map) {
+        if (file == null) {
+            file = new TreeMap<>();
+        }
+        file.putAll(map);
+    }
 }
