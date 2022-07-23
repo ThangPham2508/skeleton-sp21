@@ -26,6 +26,7 @@ public class Main {
             System.exit(0);
         }
         String firstArg = args[0];
+        fhd;
         Repository r;
         switch(firstArg) {
             case "init":
