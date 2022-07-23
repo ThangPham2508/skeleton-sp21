@@ -71,12 +71,12 @@ public class Commit implements Serializable, Dumpable {
         this.message = message;
     }
 
-    public void updateParent() {
+    public void updateParent() throws IOException{
         File head = join(Repository.CWD, ".gitlet", "HEAD");
         parent = readContentsAsString(head);
     }
 
-    public void updateMap(TreeMap<String, String> map) {
+    public void updateMap(TreeMap<String, String> map) throws IOException {
         if (file == null) {
             file = new TreeMap<>();
         }

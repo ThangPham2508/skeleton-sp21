@@ -66,7 +66,7 @@ public class Repository implements Serializable {
         Persistance.writeHead(hashc);
         Persistance.writeCommits(c);
     }
-    public void add(String filename) {
+    public void add(String filename) throws IOException {
         File f = join(CWD, filename);
         if (!f.exists()) {
             System.out.println("File does not exist.");
@@ -88,7 +88,7 @@ public class Repository implements Serializable {
         Persistance.writeStaging(staging);
     }
 
-    public void commit(String message) {
+    public void commit(String message) throws IOException {
         Commit c = Persistance.readHeadCommit();
         c.updateDate();
         c.updateMessage(message);
@@ -101,7 +101,7 @@ public class Repository implements Serializable {
         Persistance.writeStaging(staging);
     }
 
-    public void log() {
+    public void log() throws IOException {
         Commit c = Persistance.readHeadCommit();
         String hash = readContentsAsString(join(GITLET_DIR, "HEAD"));
         while (hash != null) {
@@ -161,7 +161,7 @@ public class Repository implements Serializable {
         writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
     }
 
-    public void checkoutBranch() {
+    public void checkoutBranch() throws IOException {
         return;
     }
 }
