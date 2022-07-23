@@ -88,7 +88,7 @@ public class Repository implements Serializable {
         Persistance.writeStaging(staging);
     }
 
-    public void commit(String message) throws IOException {
+    public void commit(String message) {
         Commit c = Persistance.readHeadCommit();
         c.updateDate();
         c.updateMessage(message);
