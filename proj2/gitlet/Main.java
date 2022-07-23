@@ -20,21 +20,27 @@ public class Main {
             System.exit(0);
         }
     }
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("Please enter a command.");
             System.exit(0);
         }
         String firstArg = args[0];
         Repository r;
-        switch(firstArg) {
+        switch(firstArg)  {
             case "init":
                 if (args.length != 1) {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
                 r = new Repository();
-                r.init();
+                try {
+                    r.init();
+                }
+                catch (IOException exp) {
+                    System.exit(0);
+                }
+
                 Persistance.writeRepo(r);
                 break;
             case "add":
@@ -74,10 +80,20 @@ public class Main {
                 checkGitlet();
                 r = Persistance.readRepo();
                 if (args.length == 3 && Objects.equals(args[1], "--")) {
-                    r.checkoutHead(args[2]);
+                    try {
+                        r.checkoutHead(args[2]);
+                    }
+                    catch (IOException exp) {
+                        System.exit(0);
+                    }
                 }
                 else if (args.length == 4 && Objects.equals(args[2], "--")) {
-                    r.checkoutCommit(args[1], args[3]);
+                    try {
+                        r.checkoutCommit(args[1], args[3]);
+                    }
+                    catch (IOException exp) {
+                        System.exit(0);
+                    }
                 }
                 else if (args.length == 2) {
                     r.checkoutBranch();
