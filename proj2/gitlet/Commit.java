@@ -2,6 +2,8 @@ package gitlet;
 
 // TODO: any imports you need here
 import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 
 import java.io.Serializable;
@@ -14,7 +16,7 @@ import static gitlet.Utils.*;
  *
  *  @author TODO
  */
-public class Commit implements Serializable {
+public class Commit implements Serializable, Dumpable {
     /**
      * TODO: add instance variables here.
      *
@@ -45,6 +47,22 @@ public class Commit implements Serializable {
         return file.get(filename);
     }
 
+    public boolean hasFile(String filename) {
+        return file.containsKey(filename);
+    }
+
+    public Date getDate() {
+        return timestamp;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
     public void updateDate() {
         timestamp = new Date();
     }
@@ -63,5 +81,15 @@ public class Commit implements Serializable {
             file = new TreeMap<>();
         }
         file.putAll(map);
+    }
+
+    @Override
+    public void dump() {
+        System.out.println("message: " + message);
+        System.out.println("parent: " + parent);
+        System.out.println("time: " + timestamp.toString());
+        for (Map.Entry<String, String> entry : file.entrySet()) {
+            System.out.println("files:" + entry.getKey() + " " + entry.getValue());
+        }
     }
 }

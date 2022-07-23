@@ -7,10 +7,9 @@ import java.io.Serializable;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.Calendar;
+import java.util.Formatter;
 
 /** Represents a gitlet repository.
  *  TODO: It's a good idea to give a description here of what else this Class
@@ -98,5 +97,71 @@ public class Repository implements Serializable {
         c.updateParent();
         Persistance.writeCommits(c);
         this.commits.add(sha1(serialize(c)));
+        staging.clear();
+        Persistance.writeStaging(staging);
+    }
+
+    public void log() {
+        Commit c = Persistance.readHeadCommit();
+        String hash = readContentsAsString(join(GITLET_DIR, "HEAD"));
+        while (hash != null) {
+            System.out.println("===");
+            System.out.println("commit " + hash);
+            Date d = c.getDate();
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(d);
+            Formatter fmt = new Formatter();
+            fmt.format("Date: %ta %tb %te %tT %tY %tz", cal, cal, cal, cal, cal , cal);
+            System.out.println(fmt);
+            System.out.println(c.getMessage());
+            hash = c.getParent();
+            c = Persistance.readCommit(hash);
+            System.out.println();
+        }
+    }
+
+    public void checkoutHead(String file) throws IOException {
+        Commit headCommit = Persistance.readHeadCommit();
+        if (!headCommit.hasFile(file)) {
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+        String blob = headCommit.getFile(file);
+        File f = join(CWD, file);
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
+    }
+
+    public void checkoutCommit(String id, String file) throws IOException {
+        if (id.length() == 6) {
+            List<String> files = plainFilenamesIn(join(GITLET_DIR,"commits"));
+            for (int i = 0; i < files.size(); i++) {
+                if (id.equals(files.get(i).substring(0, 6))) {
+                    id = files.get(i);
+                    break;
+                }
+            }
+            if (id.length() == 6) {
+                System.out.println("No commit with that id exists.");
+                System.exit(0);
+            }
+        }
+        Commit commit = Persistance.readCommit(id);
+        if (!commit.hasFile(file)) {
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+        String blob = commit.getFile(file);
+        File f = join(CWD, file);
+        if (!f.exists()) {
+            f.createNewFile();
+        }
+        writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
+    }
+
+    public void checkoutBranch() {
+        return;
     }
 }

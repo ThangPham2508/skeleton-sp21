@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.io.IOException;
 
 import static gitlet.Repository.GITLET_DIR;
 import static gitlet.Utils.*;
@@ -15,6 +16,19 @@ public class Persistance {
         return readObject(join(GITLET_DIR, "commits",
                 readContentsAsString(join(GITLET_DIR, "HEAD"))), Commit.class);
     }
+
+    public static Commit readCommit(String c) {
+        if (c == null) {
+            return null;
+        }
+        File commit = join(Repository.CWD, ".gitlet", "commits", c);
+        if (!commit.exists()) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        }
+        return readObject(commit, Commit.class);
+    }
+
 
     public static void writeCommits(Commit c) {
         File commit = join(Repository.CWD, ".gitlet", "commits", sha1(serialize(c)));

@@ -1,8 +1,9 @@
 package gitlet;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.TreeMap;
 
-public class Staging implements Serializable {
+public class Staging implements Serializable, Dumpable {
     private TreeMap<String, String> staging;
     public Staging() {
         staging = new TreeMap<>();
@@ -24,6 +25,13 @@ public class Staging implements Serializable {
     }
 
     public void clear() {
-        staging = null;
+        staging.clear();
+    }
+
+    @Override
+    public void dump() {
+        for (Map.Entry<String, String> entry : staging.entrySet()) {
+            System.out.println("files:" + entry.getKey() + " " + entry.getValue());
+        }
     }
 }
