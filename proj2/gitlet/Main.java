@@ -162,6 +162,10 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
+                r = readRepo();
+                r.rmbranch(args[1]);
+                writeRepo(r);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

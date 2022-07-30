@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,10 +34,6 @@ public class Commit implements Serializable, Dumpable {
         file = new TreeMap<>();
     }
 
-    public boolean isInit() {
-        return file == null;
-    }
-
     public String getFile(String filename) {
         return file.get(filename);
     }
@@ -63,8 +58,8 @@ public class Commit implements Serializable, Dumpable {
         timestamp = new Date();
     }
 
-    public void updateMessage(String message) {
-        this.message = message;
+    public void updateMessage(String newMessage) {
+        this.message = newMessage;
     }
 
     public void updateParent() {

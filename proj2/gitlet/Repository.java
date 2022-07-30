@@ -37,16 +37,16 @@ public class Repository implements Serializable {
     public void init() throws IOException {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
-        }
-        else {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
+        } else {
+            System.out.println("A Gitlet version-control system " +
+                    "already exists in the current directory.");
             System.exit(0);
         }
 
         File blob = join(GITLET_DIR, "blob");
         blob.mkdir();
-        File commits = join(GITLET_DIR, "commits");
-        commits.mkdir();
+        File commitsDir = join(GITLET_DIR, "commits");
+        commitsDir.mkdir();
         File head = join(GITLET_DIR, "HEAD");
         head.createNewFile();
         File repo = join(GITLET_DIR, "repository");
@@ -76,12 +76,13 @@ public class Repository implements Serializable {
         Staging staging = readStaging();
         if (staging.checkRemove(filename)) {
             staging.removeRemove(filename);
+            writeStaging(staging);
             return;
         }
         String hashfile = sha1(readContents(f));
         writeBlob(hashfile, readContentsAsString(f));
         Commit c = readHeadCommit();
-        if (!c.isInit() && Objects.equals(c.getFile(filename), hashfile)) {
+        if (Objects.equals(c.getFile(filename), hashfile)) {
             if (staging.getStaging(filename) == hashfile) {
                 staging.removeStaging(filename);
                 removeBlob(hashfile);
@@ -123,7 +124,7 @@ public class Repository implements Serializable {
             Calendar cal = Calendar.getInstance();
             cal.setTime(d);
             Formatter fmt = new Formatter();
-            fmt.format("Date: %ta %tb %te %tT %tY %tz", cal, cal, cal, cal, cal , cal);
+            fmt.format("Date: %ta %tb %te %tT %tY %tz", cal, cal, cal, cal, cal, cal);
             System.out.println(fmt);
             System.out.println(c.getMessage());
             hash = c.getParent();
@@ -148,7 +149,7 @@ public class Repository implements Serializable {
 
     public void checkoutCommit(String id, String file) throws IOException {
         if (id.length() == 8) {
-            List<String> files = plainFilenamesIn(join(GITLET_DIR,"commits"));
+            List<String> files = plainFilenamesIn(join(GITLET_DIR, "commits"));
             for (int i = 0; i < files.size(); i++) {
                 if (id.equals(files.get(i).substring(0, 8))) {
                     id = files.get(i);
@@ -173,24 +174,29 @@ public class Repository implements Serializable {
         writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
     }
 
-    public void checkoutBranch(String branch) {
-        if (branch.equals(this.branch)) {
+    public void checkoutBranch(String checkedBranch) {
+        if (checkedBranch.equals(this.branch)) {
             System.out.println("No need to checkout the current branch.");
             System.exit(0);
         }
-        this.branch = branch;
-        Commit c = readCommit(readBranch(branch));
+        this.branch = checkedBranch;
+        Commit c = readCommit(readBranch(checkedBranch));
+        if (c == null) {
+            System.out.println("No such branch exists.");
+            System.exit(0);
+        }
         Commit oc = readHeadCommit();
         Staging staging = readStaging();
         List<String> workingFiles = plainFilenamesIn(join(CWD));
         for (String file : workingFiles) {
             if (!oc.hasFile(file) && c.hasFile(file)) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way;" +
+                        " delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
-        TreeMap<String, String> fileTree= c.getFileTree();
-        TreeMap<String, String> ofileTree= oc.getFileTree();
+        TreeMap<String, String> fileTree = c.getFileTree();
+        TreeMap<String, String> ofileTree = oc.getFileTree();
         for (Map.Entry<String, String> entry : ofileTree.entrySet()) {
             if (!c.hasFile(entry.getKey())) {
                 restrictedDelete(join(CWD, entry.getKey()));
@@ -201,7 +207,7 @@ public class Repository implements Serializable {
                     readContentsAsString(join(GITLET_DIR, "blob", entry.getValue())));
         }
         staging.clearStaging();
-        writeHead(readBranch(branch));
+        writeHead(readBranch(checkedBranch));
     }
 
     public void remove(String file) {
@@ -262,12 +268,11 @@ public class Repository implements Serializable {
         System.out.println("=== Branches ===");
         List<String> branches = plainFilenamesIn(join(GITLET_DIR, "refs"));
         branches.sort(Comparator.naturalOrder());
-        for (String branch : branches) {
-            if (this.branch.equals(branch)) {
-                System.out.println("*" + branch);
-            }
-            else {
-                System.out.println(branch);
+        for (String b : branches) {
+            if (this.branch.equals(b)) {
+                System.out.println("*" + b);
+            } else {
+                System.out.println(b);
             }
         }
         System.out.println();
@@ -291,11 +296,24 @@ public class Repository implements Serializable {
     }
 
     public void branch(String branchName) {
-        File branch = join(GITLET_DIR, "refs", branchName);
-        if (branch.exists()) {
+        File b = join(GITLET_DIR, "refs", branchName);
+        if (b.exists()) {
             System.out.println("A branch with that name already exists.");
             System.exit(0);
         }
         writeBranch(branchName, readHead());
+    }
+
+    public void rmbranch(String branchName) {
+        if (branchName.equals(this.branch)) {
+            System.out.println("Cannot remove the current branch.");
+            System.exit(0);
+        }
+        String b = readBranch(branchName);
+        if (b == null) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        restrictedDelete(join(GITLET_DIR, "refs", branchName));
     }
 }

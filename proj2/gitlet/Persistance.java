@@ -1,7 +1,6 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
 
 import static gitlet.Repository.GITLET_DIR;
 import static gitlet.Utils.*;
@@ -54,8 +53,7 @@ public class Persistance {
         }
         File b = join(GITLET_DIR, "refs", branch);
         if (!b.exists()) {
-            System.out.println("No such branch exists.");
-            System.exit(0);
+            return null;
         }
         return readContentsAsString(b);
     }
