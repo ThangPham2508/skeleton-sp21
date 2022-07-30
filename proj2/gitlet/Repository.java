@@ -6,20 +6,17 @@ import java.io.Serializable;
 
 import static gitlet.Utils.*;
 import static gitlet.Persistance.*;
-// TODO: any imports you need here
 import java.util.*;
 import java.util.Calendar;
 import java.util.Formatter;
 
 /** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author Thang Pham
  */
 public class Repository implements Serializable {
     /**
-     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -33,7 +30,6 @@ public class Repository implements Serializable {
     private HashSet<String> commits;
     private String branch;
 
-    /* TODO: fill in the rest of this class. */
     public Repository() {
         commits = new HashSet<>();
         branch = "master";
@@ -78,14 +74,18 @@ public class Repository implements Serializable {
             System.exit(0);
         }
         Staging staging = readStaging();
+        if (staging.checkRemove(filename)) {
+            staging.removeRemove(filename);
+            return;
+        }
         String hashfile = sha1(readContents(f));
         writeBlob(hashfile, readContentsAsString(f));
-        Commit c = readObject(join(GITLET_DIR, "commits",
-                readContentsAsString(join(GITLET_DIR, "HEAD"))), Commit.class);
+        Commit c = readHeadCommit();
         if (!c.isInit() && Objects.equals(c.getFile(filename), hashfile)) {
             if (staging.getStaging(filename) == hashfile) {
                 staging.removeStaging(filename);
                 removeBlob(hashfile);
+                writeStaging(staging);
                 return;
             }
         }
@@ -98,6 +98,10 @@ public class Repository implements Serializable {
         c.updateDate();
         c.updateMessage(message);
         Staging staging = readObject(join(GITLET_DIR, "staging area"), Staging.class);
+        if (staging.isEmpty()) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
         c.updateStaging(staging.getStaging());
         c.updateRemove(staging.getRemove());
         c.updateParent();
@@ -105,6 +109,7 @@ public class Repository implements Serializable {
         writeBranch(this.branch, sha1(serialize(c)));
         this.commits.add(sha1(serialize(c)));
         staging.clearStaging();
+        staging.clearRemove();
         writeStaging(staging);
     }
 
@@ -142,15 +147,15 @@ public class Repository implements Serializable {
     }
 
     public void checkoutCommit(String id, String file) throws IOException {
-        if (id.length() == 6) {
+        if (id.length() == 8) {
             List<String> files = plainFilenamesIn(join(GITLET_DIR,"commits"));
             for (int i = 0; i < files.size(); i++) {
-                if (id.equals(files.get(i).substring(0, 6))) {
+                if (id.equals(files.get(i).substring(0, 8))) {
                     id = files.get(i);
                     break;
                 }
             }
-            if (id.length() == 6) {
+            if (id.length() == 8) {
                 System.out.println("No commit with that id exists.");
                 System.exit(0);
             }

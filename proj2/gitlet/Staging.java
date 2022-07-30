@@ -28,11 +28,25 @@ public class Staging implements Serializable, Dumpable {
     public void clearStaging() {
         staging.clear();
     }
+    public boolean isEmpty() {
+        return staging.isEmpty() && remove.isEmpty();
+    }
     public void insertRemove(String key, String value) {
         remove.put(key, value);
     }
+    public boolean checkRemove(String filename) {
+        return remove.containsKey(filename);
+    }
+    public void removeRemove(String key) {
+        remove.remove(key);
+    }
+
     public TreeMap<String, String> getRemove() {
         return remove;
+    }
+
+    public void clearRemove() {
+        remove.clear();
     }
 
     @Override

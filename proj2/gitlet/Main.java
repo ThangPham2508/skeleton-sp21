@@ -7,7 +7,7 @@ import static gitlet.Persistance.*;
 import static gitlet.Repository.GITLET_DIR;
 
 /** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+ *  @author Thang Pham
  */
 public class Main {
 
@@ -56,7 +56,7 @@ public class Main {
                 break;
             case "commit":
                 checkGitlet();
-                if (args.length == 1) {
+                if (args.length == 1 || args[1].equals("")) {
                     System.out.println("Please enter a commit message.");
                     System.exit(0);
                 }
@@ -156,6 +156,12 @@ public class Main {
                 r.branch(args[1]);
                 writeRepo(r);
                 break;
+            case "rm-branch":
+                checkGitlet();
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
