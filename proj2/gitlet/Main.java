@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.IOException;
 import java.util.Objects;
+import static gitlet.Persistance.*;
 
 import static gitlet.Repository.GITLET_DIR;
 
@@ -41,7 +42,7 @@ public class Main {
                     System.exit(0);
                 }
 
-                Persistance.writeRepo(r);
+                writeRepo(r);
                 break;
             case "add":
                 checkGitlet();
@@ -49,9 +50,9 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                r = Persistance.readRepo();
+                r = readRepo();
                 r.add(args[1]);
-                Persistance.writeRepo(r);
+                writeRepo(r);
                 break;
             case "commit":
                 checkGitlet();
@@ -63,9 +64,9 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                r = Persistance.readRepo();
+                r = readRepo();
                 r.commit(args[1]);
-                Persistance.writeRepo(r);
+                writeRepo(r);
                 break;
             case "log":
                 checkGitlet();
@@ -73,12 +74,13 @@ public class Main {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
-                r = Persistance.readRepo();
+                r = readRepo();
                 r.log();
+                writeRepo(r);
                 break;
             case "checkout":
                 checkGitlet();
-                r = Persistance.readRepo();
+                r = readRepo();
                 if (args.length == 3 && Objects.equals(args[1], "--")) {
                     try {
                         r.checkoutHead(args[2]);
@@ -96,12 +98,63 @@ public class Main {
                     }
                 }
                 else if (args.length == 2) {
-                    r.checkoutBranch();
+                    r.checkoutBranch(args[1]);
                 }
                 else {
                     System.out.println("Incorrect operands.");
                     System.exit(0);
                 }
+                writeRepo(r);
+                break;
+            case "rm":
+                checkGitlet();
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                r.remove(args[1]);
+                writeRepo(r);
+                break;
+            case "global-log":
+                checkGitlet();
+                if (args.length != 1) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                r.glog();
+                writeRepo(r);
+                break;
+            case "find":
+                checkGitlet();
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                r.find(args[1]);
+                writeRepo(r);
+                break;
+            case "status":
+                checkGitlet();
+                if (args.length != 1) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                r.status();
+                writeRepo(r);
+                break;
+            case "branch":
+                checkGitlet();
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                r.branch(args[1]);
+                writeRepo(r);
                 break;
             default:
                 System.out.println("No command with that name exists.");

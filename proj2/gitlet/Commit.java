@@ -76,11 +76,24 @@ public class Commit implements Serializable, Dumpable {
         parent = readContentsAsString(head);
     }
 
-    public void updateMap(TreeMap<String, String> map) {
+    public void updateStaging(TreeMap<String, String> map) {
         if (file == null) {
             file = new TreeMap<>();
         }
         file.putAll(map);
+    }
+
+    public void updateRemove(TreeMap<String, String> map) {
+        if (map.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            file.remove(entry.getKey());
+        }
+    }
+
+    public TreeMap<String, String> getFileTree() {
+        return file;
     }
 
     @Override
