@@ -346,5 +346,6 @@ public class Repository implements Serializable {
         writeHead(commitID);
         Staging staging = readStaging();
         staging.clearStagingAndRemove();
+        writeStaging(staging);
     }
 }
