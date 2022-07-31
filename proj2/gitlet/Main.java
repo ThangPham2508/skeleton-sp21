@@ -82,20 +82,10 @@ public class Main {
                 checkGitlet();
                 r = readRepo();
                 if (args.length == 3 && Objects.equals(args[1], "--")) {
-                    try {
-                        r.checkoutHead(args[2]);
-                    }
-                    catch (IOException exp) {
-                        System.exit(0);
-                    }
+                    r.checkoutHead(args[2]);
                 }
                 else if (args.length == 4 && Objects.equals(args[2], "--")) {
-                    try {
-                        r.checkoutCommit(args[1], args[3]);
-                    }
-                    catch (IOException exp) {
-                        System.exit(0);
-                    }
+                    r.checkoutCommit(args[1], args[3]);
                 }
                 else if (args.length == 2) {
                     r.checkoutBranch(args[1]);

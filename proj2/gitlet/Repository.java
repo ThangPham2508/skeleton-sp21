@@ -134,7 +134,7 @@ public class Repository implements Serializable {
         }
     }
 
-    public void checkoutHead(String file) throws IOException {
+    public void checkoutHead(String file){
         Commit headCommit = readHeadCommit();
         if (!headCommit.hasFile(file)) {
             System.out.println("File does not exist in that commit.");
@@ -142,9 +142,6 @@ public class Repository implements Serializable {
         }
         String blob = headCommit.getFile(file);
         File f = join(CWD, file);
-        if (!f.exists()) {
-            f.createNewFile();
-        }
         writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
     }
 
