@@ -345,17 +345,21 @@ public class Repository implements Serializable {
         return Objects.equals(a.getFile(file), b.getFile(file));
     }
 
-    private void mergeConflict(String currentBlob, String otherBlob, String file) {
+    private void mergeConflict(String currentBlob, String otherBlob, Integer conflictCount) {
         String content = "<<<<<<< HEAD\n";
-        content += readBlob(currentBlob);
+        if (!(currentBlob == null)) {
+            content += readBlob(currentBlob);
+        }
         content += "=======\n";
-        content += readBlob(otherBlob);
+        if (!(otherBlob == null)) {
+            content += readBlob(otherBlob);
+        }
         content += ">>>>>>>";
-        writeContents(join(CWD, file), content);
+        String fileName = "conflict" + conflictCount;
+        writeContents(join(CWD, fileName), content);
     }
 
     public void merge(String otherBranch) {
-
         Staging staging = readStaging();
         if (!staging.isEmpty()) {
             System.out.println("You have uncommitted changes.");
@@ -399,16 +403,15 @@ public class Repository implements Serializable {
             System.out.println("Given branch is an ancestor of the current branch.");
             return;
         } else if (splitID.equals(currentBranchID)) {
-            checkoutBranch(otherBranchID);
+            checkoutBranch(otherBranch);
             System.out.println("Current branch fast-forwarded.");
             System.exit(0);
         }
-
         TreeSet<String> files = new TreeSet<>();
         files.addAll(currentBranchCommit.getFileSet());
         files.addAll(otherBranchCommit.getFileSet());
         files.addAll(splitCommit.getFileSet());
-
+        int conflictCount = 1;
         for (String file : files) {
             if (!fileCompare(splitCommit, otherBranchCommit, file)) {
                 if (fileCompare(splitCommit, currentBranchCommit, file)) {
@@ -425,14 +428,15 @@ public class Repository implements Serializable {
                     }
                 } else {
                     if (!fileCompare(otherBranchCommit, currentBranchCommit, file)) {
-                        mergeConflict(currentBranchCommit.getFile(file)
-                                , otherBranchCommit.getFile(file), file);
+                        mergeConflict(currentBranchCommit.getFile(file),
+                                otherBranchCommit.getFile(file), conflictCount);
+                        conflictCount++;
                         System.out.println("Encountered a merge conflict.");
                     }
                 }
             }
         }
-        String message = "Merged" + otherBranch + "into" + this.branch + ".";
+        String message = "Merged " + otherBranch + " into " + this.branch + ".";
         commit(message);
     }
 }
