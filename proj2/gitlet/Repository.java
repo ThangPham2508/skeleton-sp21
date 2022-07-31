@@ -134,7 +134,7 @@ public class Repository implements Serializable {
         }
     }
 
-    public void checkoutHead(String file){
+    public void checkoutHead(String file) {
         Commit headCommit = readHeadCommit();
         if (!headCommit.hasFile(file)) {
             System.out.println("File does not exist in that commit.");
@@ -162,7 +162,7 @@ public class Repository implements Serializable {
         return id;
     }
 
-    public void checkoutCommit(String id, String file){
+    public void checkoutCommit(String id, String file) {
         id = verifyCommitId(id);
         Commit commit = readCommit(id);
         if (!commit.hasFile(file)) {
@@ -416,7 +416,7 @@ public class Repository implements Serializable {
                         checkoutCommit(otherBranchID, file);
                         staging.insertStaging(file, otherBranchCommit.getFile(file));
                         writeStaging(staging);
-                    } else if (!otherBranchCommit.hasFile(file)){
+                    } else if (!otherBranchCommit.hasFile(file)) {
                         remove(file);
                     } else {
                         checkoutCommit(otherBranchID, file);
@@ -425,10 +425,14 @@ public class Repository implements Serializable {
                     }
                 } else {
                     if (!fileCompare(otherBranchCommit, currentBranchCommit, file)) {
-                        mergeConflict(currentBranchCommit.getFile(file), otherBranchCommit.getFile(file), file);
+                        mergeConflict(currentBranchCommit.getFile(file)
+                                , otherBranchCommit.getFile(file), file);
+                        System.out.println("Encountered a merge conflict.");
                     }
                 }
             }
         }
+        String message = "Merged" + otherBranch + "into" + this.branch + ".";
+        commit(message);
     }
 }
