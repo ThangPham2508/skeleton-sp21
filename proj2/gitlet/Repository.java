@@ -370,7 +370,7 @@ public class Repository implements Serializable {
             System.exit(0);
         }
         String currentBranchID = readBranch(this.branch);
-        if (otherBranchID == currentBranchID) {
+        if (otherBranch.equals(this.branch)) {
             System.out.println("Cannot merge a branch with itself.");
             System.exit(0);
         }
@@ -419,6 +419,7 @@ public class Repository implements Serializable {
                         writeStaging(staging);
                     } else if (!otherBranchCommit.hasFile(file)) {
                         remove(file);
+                        restrictedDelete(join(CWD, file));
                     } else {
                         checkoutCommit(otherBranchID, file);
                         staging.insertStaging(file, otherBranchCommit.getFile(file));
