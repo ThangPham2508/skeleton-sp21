@@ -38,8 +38,8 @@ public class Repository implements Serializable {
         if (!GITLET_DIR.exists()) {
             GITLET_DIR.mkdir();
         } else {
-            System.out.println("A Gitlet version-control system " +
-                    "already exists in the current directory.");
+            System.out.println("A Gitlet version-control system "
+                    + "already exists in the current directory.");
             System.exit(0);
         }
 
@@ -147,7 +147,7 @@ public class Repository implements Serializable {
         writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
     }
 
-    public void checkoutCommit(String id, String file) throws IOException {
+    private String verifyCommitId (String id) {
         if (id.length() == 8) {
             List<String> files = plainFilenamesIn(join(GITLET_DIR, "commits"));
             for (int i = 0; i < files.size(); i++) {
@@ -161,6 +161,11 @@ public class Repository implements Serializable {
                 System.exit(0);
             }
         }
+        return id;
+    }
+
+    public void checkoutCommit(String id, String file) throws IOException {
+        id = verifyCommitId(id);
         Commit commit = readCommit(id);
         if (!commit.hasFile(file)) {
             System.out.println("File does not exist in that commit.");
@@ -190,8 +195,8 @@ public class Repository implements Serializable {
         List<String> workingFiles = plainFilenamesIn(join(CWD));
         for (String file : workingFiles) {
             if (!oc.hasFile(file) && c.hasFile(file)) {
-                System.out.println("There is an untracked file in the way;" +
-                        " delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way;"
+                        + " delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
@@ -238,7 +243,7 @@ public class Repository implements Serializable {
             Calendar cal = Calendar.getInstance();
             cal.setTime(d);
             Formatter fmt = new Formatter();
-            fmt.format("Date: %ta %tb %te %tT %tY %tz", cal, cal, cal, cal, cal , cal);
+            fmt.format("Date: %ta %tb %te %tT %tY %tz", cal, cal, cal, cal, cal, cal);
             System.out.println(fmt);
             System.out.println(c.getMessage());
             System.out.println();
@@ -315,5 +320,27 @@ public class Repository implements Serializable {
             System.exit(0);
         }
         restrictedDelete(join(GITLET_DIR, "refs", branchName));
+    }
+
+    public void reset(String commitID) throws IOException {
+        commitID = verifyCommitId(commitID);
+        Commit currentCommit = readHeadCommit();
+        Commit resetCommit = readCommit(commitID);
+        List<String> workingFiles = plainFilenamesIn(CWD);
+        for (String file : workingFiles) {
+            if (!currentCommit.hasFile(file) && resetCommit.hasFile(file)) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        for (String file : workingFiles) {
+            if (!resetCommit.hasFile(file)) {
+                restrictedDelete(join(CWD, file));
+            } else {
+                checkoutCommit(commitID, file);
+            }
+        }
+        writeBranch(this.branch, commitID);
+        writeHead(commitID);
     }
 }

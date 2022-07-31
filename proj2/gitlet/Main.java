@@ -166,6 +166,21 @@ public class Main {
                 r.rmbranch(args[1]);
                 writeRepo(r);
                 break;
+            case "reset":
+                checkGitlet();
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                try {
+                    r.reset(args[1]);
+                }
+                catch (IOException exp) {
+                    System.exit(0);
+                }
+                writeRepo(r);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);
