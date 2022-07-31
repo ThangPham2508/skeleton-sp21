@@ -82,8 +82,8 @@ public class Repository implements Serializable {
         String hashfile = sha1(readContents(f));
         writeBlob(hashfile, readContentsAsString(f));
         Commit c = readHeadCommit();
-        if (c.getFile(filename).equals(hashfile)) {
-            if (staging.getStaging(filename) == hashfile) {
+        if (Objects.equals(c.getFile(filename), hashfile)) {
+            if (Objects.equals(staging.getStaging(filename), hashfile)) {
                 staging.removeStaging(filename);
                 removeBlob(hashfile);
                 writeStaging(staging);
@@ -330,8 +330,8 @@ public class Repository implements Serializable {
         List<String> workingFiles = plainFilenamesIn(CWD);
         for (String file : workingFiles) {
             if (!currentCommit.hasFile(file) && resetCommit.hasFile(file)) {
-                System.out.println("There is an untracked file in the way;" +
-                        " delete it, or add and commit it first.");
+                System.out.println("There is an untracked file in the way;"
+                        + " delete it, or add and commit it first.");
                 System.exit(0);
             }
         }
