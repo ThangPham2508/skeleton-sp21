@@ -320,7 +320,7 @@ public class Repository implements Serializable {
             System.out.println("A branch with that name does not exist.");
             System.exit(0);
         }
-        restrictedDelete(join(GITLET_DIR, "refs", branchName));
+        join(GITLET_DIR, "refs", branchName).delete();
     }
 
     public void reset(String commitID) throws IOException {
@@ -344,5 +344,7 @@ public class Repository implements Serializable {
         }
         writeBranch(this.branch, commitID);
         writeHead(commitID);
+        Staging staging = readStaging();
+        staging.clearStagingAndRemove();
     }
 }

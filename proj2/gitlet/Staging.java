@@ -48,6 +48,10 @@ public class Staging implements Serializable, Dumpable {
     public void clearRemove() {
         remove.clear();
     }
+    public void clearStagingAndRemove() {
+        clearStaging();
+        clearRemove();
+    }
 
     @Override
     public void dump() {
