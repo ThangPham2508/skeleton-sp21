@@ -354,7 +354,7 @@ public class Repository implements Serializable {
         if (!(otherBlob == null)) {
             content += readBlob(otherBlob);
         }
-        content += ">>>>>>>";
+        content += ">>>>>>>\n";
         String fileName = "conflict" + conflictCount;
         writeContents(join(CWD, fileName), content);
     }
