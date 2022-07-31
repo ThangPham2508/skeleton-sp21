@@ -63,6 +63,10 @@ public class Persistance {
         writeContents(b, commit);
     }
 
+    public static String readBlob(String blob) {
+        return readContentsAsString(join(GITLET_DIR, "blob", blob));
+    }
+
     public static void writeBlob(String hashb, String content) {
         File blob = join(Repository.CWD, ".gitlet", "blob", hashb);
         writeContents(blob, content);

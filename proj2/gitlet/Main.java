@@ -181,6 +181,16 @@ public class Main {
                 }
                 writeRepo(r);
                 break;
+            case "merge":
+                checkGitlet();
+                if (args.length != 2) {
+                    System.out.println("Incorrect operands.");
+                    System.exit(0);
+                }
+                r = readRepo();
+                r.merge(args[1]);
+                writeRepo(r);
+                break;
             default:
                 System.out.println("No command with that name exists.");
                 System.exit(0);

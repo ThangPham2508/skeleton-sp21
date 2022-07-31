@@ -165,7 +165,7 @@ public class Repository implements Serializable {
         return id;
     }
 
-    public void checkoutCommit(String id, String file) throws IOException {
+    public void checkoutCommit(String id, String file){
         id = verifyCommitId(id);
         Commit commit = readCommit(id);
         if (!commit.hasFile(file)) {
@@ -174,10 +174,18 @@ public class Repository implements Serializable {
         }
         String blob = commit.getFile(file);
         File f = join(CWD, file);
-        if (!f.exists()) {
-            f.createNewFile();
-        }
         writeContents(f, readContentsAsString(join(GITLET_DIR, "blob", blob)));
+    }
+
+    private void checkUntrackedFiles(Commit a, Commit b) {
+        List<String> workingFiles = plainFilenamesIn(join(CWD));
+        for (String file : workingFiles) {
+            if (!a.hasFile(file) && b.hasFile(file)) {
+                System.out.println("There is an untracked file in the way;"
+                        + " delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
     }
 
     public void checkoutBranch(String checkedBranch) {
@@ -193,14 +201,7 @@ public class Repository implements Serializable {
         }
         Commit oc = readHeadCommit();
         Staging staging = readStaging();
-        List<String> workingFiles = plainFilenamesIn(join(CWD));
-        for (String file : workingFiles) {
-            if (!oc.hasFile(file) && c.hasFile(file)) {
-                System.out.println("There is an untracked file in the way;"
-                        + " delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
+        checkUntrackedFiles(oc, c);
         TreeMap<String, String> fileTree = c.getFileTree();
         TreeMap<String, String> ofileTree = oc.getFileTree();
         for (Map.Entry<String, String> entry : ofileTree.entrySet()) {
@@ -328,13 +329,7 @@ public class Repository implements Serializable {
         Commit currentCommit = readHeadCommit();
         Commit resetCommit = readCommit(commitID);
         List<String> workingFiles = plainFilenamesIn(CWD);
-        for (String file : workingFiles) {
-            if (!currentCommit.hasFile(file) && resetCommit.hasFile(file)) {
-                System.out.println("There is an untracked file in the way;"
-                        + " delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
+        checkUntrackedFiles(currentCommit, resetCommit);
         for (String file : workingFiles) {
             if (!resetCommit.hasFile(file)) {
                 restrictedDelete(join(CWD, file));
@@ -347,5 +342,96 @@ public class Repository implements Serializable {
         Staging staging = readStaging();
         staging.clearStagingAndRemove();
         writeStaging(staging);
+    }
+
+    private boolean fileCompare(Commit a, Commit b, String file) {
+        return Objects.equals(a.getFile(file), b.getFile(file));
+    }
+
+    private void mergeConflict(String currentBlob, String otherBlob, String file) {
+        String content = "<<<<<<< HEAD\n";
+        content += readBlob(currentBlob);
+        content += "=======\n";
+        content += readBlob(otherBlob);
+        content += ">>>>>>>";
+        writeContents(join(CWD, file), content);
+    }
+
+    public void merge(String otherBranch) {
+
+        Staging staging = readStaging();
+        if (!staging.isEmpty()) {
+            System.out.println("You have uncommitted changes.");
+            System.exit(0);
+        }
+        String otherBranchID = readBranch(otherBranch);
+        if (otherBranchID == null) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+        }
+        String currentBranchID = readBranch(this.branch);
+        if (otherBranchID == currentBranchID) {
+            System.out.println("Cannot merge a branch with itself.");
+            System.exit(0);
+        }
+        String splitID = null;
+        Commit otherBranchCommit = readCommit(otherBranchID);
+        Commit currentBranchCommit = readCommit(currentBranchID);
+        checkUntrackedFiles(currentBranchCommit, otherBranchCommit);
+        Commit splitCommit = null;
+        TreeSet<String> commitIDs = new TreeSet<>();
+        String travID = currentBranchID;
+        Commit travCommit = currentBranchCommit;
+        while (travID != null) {
+            commitIDs.add(travID);
+            travID = travCommit.getParent();
+            travCommit = readCommit(travID);
+        }
+        travID = otherBranchID;
+        travCommit = otherBranchCommit;
+        while (travID != null) {
+            if (commitIDs.contains(travID)) {
+                splitID = travID;
+                splitCommit = readCommit(splitID);
+                break;
+            }
+            travID = travCommit.getParent();
+            travCommit = readCommit(travID);
+        }
+        if (splitID.equals(otherBranchID)) {
+            System.out.println("Given branch is an ancestor of the current branch.");
+            return;
+        } else if (splitID.equals(currentBranchID)) {
+            checkoutBranch(otherBranchID);
+            System.out.println("Current branch fast-forwarded.");
+            System.exit(0);
+        }
+
+        TreeSet<String> files = new TreeSet<>();
+        files.addAll(currentBranchCommit.getFileSet());
+        files.addAll(otherBranchCommit.getFileSet());
+        files.addAll(splitCommit.getFileSet());
+
+        for (String file : files) {
+            if (!fileCompare(splitCommit, otherBranchCommit, file)) {
+                if (fileCompare(splitCommit, currentBranchCommit, file)) {
+                    if (!splitCommit.hasFile(file)) {
+                        checkoutCommit(otherBranchID, file);
+                        staging.insertStaging(file, otherBranchCommit.getFile(file));
+                        writeStaging(staging);
+                    } else if (!otherBranchCommit.hasFile(file)){
+                        remove(file);
+                    } else {
+                        checkoutCommit(otherBranchID, file);
+                        staging.insertStaging(file, otherBranchCommit.getFile(file));
+                        writeStaging(staging);
+                    }
+                } else {
+                    if (!fileCompare(otherBranchCommit, currentBranchCommit, file)) {
+                        mergeConflict(currentBranchCommit.getFile(file), otherBranchCommit.getFile(file), file);
+                    }
+                }
+            }
+        }
     }
 }

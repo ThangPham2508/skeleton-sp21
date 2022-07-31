@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import java.io.Serializable;
@@ -40,6 +41,9 @@ public class Commit implements Serializable, Dumpable {
 
     public boolean hasFile(String filename) {
         return file.containsKey(filename);
+    }
+    public Set<String> getFileSet() {
+        return file.keySet();
     }
 
     public Date getDate() {
