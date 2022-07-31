@@ -345,7 +345,7 @@ public class Repository implements Serializable {
         return Objects.equals(a.getFile(file), b.getFile(file));
     }
 
-    private void mergeConflict(String currentBlob, String otherBlob, Integer conflictCount) {
+    private void mergeConflict(String currentBlob, String otherBlob, String file) {
         String content = "<<<<<<< HEAD\n";
         if (!(currentBlob == null)) {
             content += readBlob(currentBlob);
@@ -355,8 +355,7 @@ public class Repository implements Serializable {
             content += readBlob(otherBlob);
         }
         content += ">>>>>>>\n";
-        String fileName = "conflict" + conflictCount;
-        writeContents(join(CWD, fileName), content);
+        writeContents(join(CWD, file), content);
     }
 
     public void merge(String otherBranch) {
@@ -411,7 +410,6 @@ public class Repository implements Serializable {
         files.addAll(currentBranchCommit.getFileSet());
         files.addAll(otherBranchCommit.getFileSet());
         files.addAll(splitCommit.getFileSet());
-        int conflictCount = 1;
         for (String file : files) {
             if (!fileCompare(splitCommit, otherBranchCommit, file)) {
                 if (fileCompare(splitCommit, currentBranchCommit, file)) {
@@ -429,8 +427,7 @@ public class Repository implements Serializable {
                 } else {
                     if (!fileCompare(otherBranchCommit, currentBranchCommit, file)) {
                         mergeConflict(currentBranchCommit.getFile(file),
-                                otherBranchCommit.getFile(file), conflictCount);
-                        conflictCount++;
+                                otherBranchCommit.getFile(file), file);
                         System.out.println("Encountered a merge conflict.");
                     }
                 }
