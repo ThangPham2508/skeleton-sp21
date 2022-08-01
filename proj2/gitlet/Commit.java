@@ -26,12 +26,14 @@ public class Commit implements Serializable, Dumpable {
     private String message;
     private Date timestamp;
     private String parent;
+    private String mergedParent;
     private TreeMap<String, String> file;
 
     public Commit() {
         message = "initial commit";
         timestamp = new Date(0);
         parent = null;
+        mergedParent = null;
         file = new TreeMap<>();
     }
 
@@ -56,6 +58,12 @@ public class Commit implements Serializable, Dumpable {
 
     public String getParent() {
         return parent;
+    }
+    public String getMergedParent() {
+        return mergedParent;
+    }
+    public void updateMergedParent(String m) {
+        mergedParent = m;
     }
 
     public void updateDate() {

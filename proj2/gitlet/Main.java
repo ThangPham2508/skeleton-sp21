@@ -65,7 +65,7 @@ public class Main {
                     System.exit(0);
                 }
                 r = readRepo();
-                r.commit(args[1]);
+                r.commit(args[1], false, null);
                 writeRepo(r);
                 break;
             case "log":

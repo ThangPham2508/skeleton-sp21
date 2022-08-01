@@ -95,7 +95,7 @@ public class Repository implements Serializable {
         writeStaging(staging);
     }
 
-    public void commit(String message) {
+    public void commit(String message, boolean isMerged, String mergedParent) {
         Commit c = readHeadCommit();
         c.updateDate();
         c.updateMessage(message);
@@ -107,6 +107,9 @@ public class Repository implements Serializable {
         c.updateStaging(staging.getStaging());
         c.updateRemove(staging.getRemove());
         c.updateParent();
+        if (isMerged) {
+            c.updateMergedParent(mergedParent);
+        }
         writeCommits(c);
         writeBranch(this.branch, sha1(serialize(c)));
         this.commits.add(sha1(serialize(c)));
@@ -358,6 +361,19 @@ public class Repository implements Serializable {
         writeContents(join(CWD, file), content);
     }
 
+    public void traverseCommit(TreeSet<String> commitIDs, String travID, Commit travCommit) {
+        while (travID != null) {
+            commitIDs.add(travID);
+            if (travCommit.getMergedParent() != null) {
+                travID = travCommit.getMergedParent();
+                travCommit = readCommit(travID);
+                traverseCommit(commitIDs, travID, travCommit);
+            }
+            travID = travCommit.getParent();
+            travCommit = readCommit(travID);
+        }
+    }
+
     public void merge(String otherBranch) {
         Staging staging = readStaging();
         if (!staging.isEmpty()) {
@@ -382,11 +398,7 @@ public class Repository implements Serializable {
         TreeSet<String> commitIDs = new TreeSet<>();
         String travID = currentBranchID;
         Commit travCommit = currentBranchCommit;
-        while (travID != null) {
-            commitIDs.add(travID);
-            travID = travCommit.getParent();
-            travCommit = readCommit(travID);
-        }
+        traverseCommit(commitIDs, travID, travCommit);
         travID = otherBranchID;
         travCommit = otherBranchCommit;
         while (travID != null) {
@@ -435,6 +447,6 @@ public class Repository implements Serializable {
             }
         }
         String message = "Merged " + otherBranch + " into " + this.branch + ".";
-        commit(message);
+        commit(message, true, otherBranchID);
     }
 }
